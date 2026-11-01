@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import "./App.css";
+import { translations, type Language } from "./translations";
 
 type Market = {
   id: string;
@@ -86,14 +87,25 @@ const money = (value: number) =>
   }).format(value);
 
 function App() {
+  const [language, setLanguage] = useState<Language>("en");
+
+  const t = translations[language];
+
   const [crop, setCrop] = useState("tomato");
   const [quantity, setQuantity] = useState("40");
   const [grade, setGrade] = useState("A");
   const [capacity, setCapacity] = useState("20");
   const [transportRate, setTransportRate] = useState("12");
+
   const [results, setResults] = useState<MarketResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const marketNames: Record<string, string> = {
+    "Nearby Market": translations[language].nearbyMarket,
+    "Regional Market": translations[language].regionalMarket,
+    "Distant Market": translations[language].distantMarket,
+  };
 
   async function compareMarkets() {
     setLoading(true);
@@ -101,32 +113,38 @@ function App() {
     setResults([]);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/compare", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          crop,
-          qty_qtl: Number(quantity),
-          grade,
-          vehicle_capacity_qtl: Number(capacity),
-          rate_per_km: Number(transportRate),
-          markets: sampleMarkets,
-        }),
-      });
+      const response = await fetch(
+        "http://127.0.0.1:8000/compare",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            crop,
+            qty_qtl: Number(quantity),
+            grade,
+            vehicle_capacity_qtl: Number(capacity),
+            rate_per_km: Number(transportRate),
+            markets: sampleMarkets,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const detail = await response.text();
-        throw new Error(`API error (${response.status}): ${detail}`);
+        throw new Error(
+          `API error (${response.status}): ${detail}`
+        );
       }
 
-      const data: { results: MarketResult[] } = await response.json();
+      const data: { results: MarketResult[] } =
+        await response.json();
+
       setResults(data.results);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong. Please try again.",
-      );
+      console.error(err);
+      setError(t.error);
     } finally {
       setLoading(false);
     }
@@ -137,21 +155,39 @@ function App() {
       <header className="topbar">
         <a className="brand" href="#">
           <span className="brand-mark">F</span>
-          <span>Fair<span className="brand-light">Farm</span></span>
+          <span>
+            Fair<span className="brand-light">Farm</span>
+          </span>
         </a>
-        <span className="topbar-note">Better decisions. Fairer returns.</span>
+
+        <div className="header-actions">
+          <span className="topbar-note">{t.tagline}</span>
+
+          <select
+            className="language-select"
+            value={language}
+            onChange={(e) =>
+              setLanguage(e.target.value as Language)
+            }
+            aria-label="Select language"
+          >
+            <option value="en">English</option>
+            <option value="te">తెలుగు</option>
+            <option value="hi">हिन्दी</option>
+          </select>
+        </div>
       </header>
 
       <main className="dashboard">
         <section className="hero">
           <div className="hero-copy">
-            <span className="eyebrow">YOUR HARVEST, YOUR CHOICE</span>
-            <h1>Find the market that<br />works best for you.</h1>
-            <p>
-              Compare estimated earnings after transport and market costs
-              before deciding where to sell your harvest.
-            </p>
+            <span className="eyebrow">{t.eyebrow}</span>
+
+            <h1>{t.heroTitle}</h1>
+
+            <p>{t.heroDescription}</p>
           </div>
+
           <div className="hero-art" aria-hidden="true">
             <span className="sun" />
             <span className="field field-one" />
@@ -165,20 +201,27 @@ function App() {
           <aside className="input-card">
             <div className="section-heading">
               <span className="step-number">01</span>
+
               <div>
-                <h2>Your harvest</h2>
-                <p>Tell us what you're selling.</p>
+                <h2>{t.harvest}</h2>
+                <p>{t.harvestDescription}</p>
               </div>
             </div>
 
-            <label htmlFor="crop">Crop type</label>
-            <select id="crop" value={crop} onChange={(e) => setCrop(e.target.value)}>
-              <option value="tomato">Tomato</option>
-              <option value="onion">Onion</option>
-              <option value="wheat">Wheat</option>
+            <label htmlFor="crop">{t.crop}</label>
+
+            <select
+              id="crop"
+              value={crop}
+              onChange={(e) => setCrop(e.target.value)}
+            >
+              <option value="tomato">{t.tomato}</option>
+              <option value="onion">{t.onion}</option>
+              <option value="wheat">{t.wheat}</option>
             </select>
 
-            <label htmlFor="quantity">Quantity (quintals)</label>
+            <label htmlFor="quantity">{t.quantity}</label>
+
             <input
               id="quantity"
               type="number"
@@ -188,24 +231,31 @@ function App() {
               onChange={(e) => setQuantity(e.target.value)}
             />
 
-            <label htmlFor="grade">Crop quality grade</label>
-            <select id="grade" value={grade} onChange={(e) => setGrade(e.target.value)}>
-              <option value="A">Grade A — Premium</option>
-              <option value="B">Grade B — Good</option>
-              <option value="C">Grade C — Standard</option>
+            <label htmlFor="grade">{t.grade}</label>
+
+            <select
+              id="grade"
+              value={grade}
+              onChange={(e) => setGrade(e.target.value)}
+            >
+              <option value="A">{t.gradeA}</option>
+              <option value="B">{t.gradeB}</option>
+              <option value="C">{t.gradeC}</option>
             </select>
 
             <div className="form-divider" />
 
             <div className="section-heading compact">
               <span className="step-number">02</span>
+
               <div>
-                <h2>Transport details</h2>
-                <p>Estimate your travel costs.</p>
+                <h2>{t.transport}</h2>
+                <p>{t.transportDescription}</p>
               </div>
             </div>
 
-            <label htmlFor="capacity">Vehicle capacity (quintals)</label>
+            <label htmlFor="capacity">{t.capacity}</label>
+
             <input
               id="capacity"
               type="number"
@@ -215,7 +265,8 @@ function App() {
               onChange={(e) => setCapacity(e.target.value)}
             />
 
-            <label htmlFor="rate">Transport rate (₹ per km)</label>
+            <label htmlFor="rate">{t.rate}</label>
+
             <input
               id="rate"
               type="number"
@@ -230,94 +281,124 @@ function App() {
               onClick={compareMarkets}
               disabled={loading}
             >
-              {loading ? "Comparing markets..." : "Compare markets"}
+              {loading ? t.comparing : t.compare}
               {!loading && <span aria-hidden="true"> →</span>}
             </button>
 
-            {error && <p className="error-message">{error}</p>}
+            {error && (
+              <p className="error-message">{error}</p>
+            )}
           </aside>
 
           <section className="results-section">
             <div className="results-title">
               <div>
-                <span className="eyebrow">YOUR MARKET REPORT</span>
-                <h2>Where should you sell?</h2>
+                <span className="eyebrow">{t.report}</span>
+                <h2>{t.whereToSell}</h2>
               </div>
-              <span className="demo-badge">DEMO DATA</span>
+
+              <span className="demo-badge">{t.demo}</span>
             </div>
 
             {!results.length && !loading && !error && (
               <div className="empty-state">
                 <span className="empty-icon">₹</span>
-                <h3>Your comparison starts here</h3>
-                <p>
-                  Enter your harvest details, then select “Compare markets”
-                  to see estimated returns for three example markets.
-                </p>
+
+                <h3>{t.start}</h3>
+
+                <p>{t.startDescription}</p>
               </div>
             )}
 
             {loading && (
               <div className="empty-state">
-                <h3>Calculating your estimated returns...</h3>
-                <p>Comparing prices, transport and market costs.</p>
+                <h3>{t.calculating}</h3>
+                <p>{t.calculatingDescription}</p>
               </div>
             )}
 
             {results.map((result, index) => (
-              <article className={`market-card ${index === 0 ? "best-market" : ""}`} key={result.market_id}>
+              <article
+                className={`market-card ${
+                  index === 0 ? "best-market" : ""
+                }`}
+                key={result.market_id}
+              >
                 <div className="market-topline">
                   <div>
-                    {index === 0 && <span className="best-label">BEST ESTIMATED RETURN</span>}
-                    <h3>{result.market_id}</h3>
+                    {index === 0 && (
+                      <span className="best-label">
+                        {t.best}
+                      </span>
+                    )}
+
+                    <h3>
+                      {marketNames[result.market_id] ??
+                        result.market_id}
+                    </h3>
                   </div>
+
                   <div className="market-distance">
-                    <span>Estimated net at low price</span>
+                    <span>{t.lowPrice}</span>
                     <strong>{money(result.low.net)}</strong>
                   </div>
                 </div>
 
                 <div className="net-highlight">
                   <div>
-                    <span>Estimated net at modal price</span>
+                    <span>{t.modalPrice}</span>
                     <strong>{money(result.mid.net)}</strong>
                   </div>
+
                   <div className="per-quintal">
-                    <span>Net per quintal</span>
+                    <span>{t.perQuintal}</span>
                     <strong>{money(result.mid.per_qtl)}</strong>
                   </div>
                 </div>
 
                 <div className="cost-breakdown">
-                  <div><span>Gross revenue</span><strong>{money(result.mid.revenue)}</strong></div>
-                  <div><span>Transport</span><strong>− {money(result.mid.transport)}</strong></div>
-                  <div><span>Fees & commission</span><strong>− {money(result.mid.fees)}</strong></div>
-                  <div><span>Handling</span><strong>− {money(result.mid.handling)}</strong></div>
+                  <div>
+                    <span>{t.revenue}</span>
+                    <strong>{money(result.mid.revenue)}</strong>
+                  </div>
+
+                  <div>
+                    <span>{t.transportCost}</span>
+                    <strong>− {money(result.mid.transport)}</strong>
+                  </div>
+
+                  <div>
+                    <span>{t.fees}</span>
+                    <strong>− {money(result.mid.fees)}</strong>
+                  </div>
+
+                  <div>
+                    <span>{t.handling}</span>
+                    <strong>− {money(result.mid.handling)}</strong>
+                  </div>
                 </div>
 
                 {result.mid.unsold_qtl > 0 && (
                   <p className="unsold-note">
-                    Note: {result.mid.unsold_qtl.toFixed(1)} quintals may remain unsold at this market's quantity limit.
+                    {result.mid.unsold_qtl.toFixed(1)} {t.unsold}
                   </p>
                 )}
 
                 <p className="range-note">
-                  Estimated net range: {money(result.low.net)} – {money(result.high.net)}
+                  {t.range}: {money(result.low.net)} –{" "}
+                  {money(result.high.net)}
                 </p>
               </article>
             ))}
 
             <p className="disclaimer">
-              <strong>Important:</strong> Market prices and costs on this prototype
-              are illustrative, not live offers. Actual returns can vary by location,
-              quality, buyer, and day. Confirm rates before travelling.
+              <strong>{t.important}</strong> {t.disclaimer}
             </p>
           </section>
         </section>
 
         <footer className="footer">
-          <span>FairFarm · Supporting informed farm-gate decisions</span>
-          <span>Built for the SEVA First Innovation Challenge</span>
+          <span>{t.footer}</span>
         </footer>
       </main>
     </div>
