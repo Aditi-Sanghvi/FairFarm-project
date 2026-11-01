@@ -534,3 +534,112 @@
     flex-direction: column;
   }
 }
+
+
+.farmer-guide {
+  margin: 35px 0;
+}
+
+.guide-heading {
+  margin-bottom: 22px;
+}
+
+.guide-heading h2 {
+  margin: 8px 0;
+  color: #244b32;
+}
+
+.guide-heading p {
+  color: #718071;
+  line-height: 1.6;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.guide-card {
+  position: relative;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e4ebe2;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(30, 65, 35, 0.04);
+}
+
+.guide-icon {
+  font-size: 34px;
+  margin-bottom: 12px;
+}
+
+.guide-number {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: #a4b6a3;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.guide-card h3 {
+  color: #244b32;
+  font-size: 17px;
+  margin: 8px 0;
+}
+
+.guide-card p {
+  color: #647264;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.guide-example {
+  margin-top: 14px;
+  padding: 12px;
+  background: #f1f7ef;
+  border-radius: 9px;
+  color: #3c6542;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.guide-tip {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-top: 20px;
+  padding: 20px;
+  background: #f0f6eb;
+  border-radius: 12px;
+  border-left: 4px solid #5b9660;
+}
+
+.guide-tip-icon {
+  font-size: 26px;
+}
+
+.guide-tip h3 {
+  margin: 0 0 7px;
+  color: #315d37;
+}
+
+.guide-tip p {
+  margin: 0;
+  color: #536b55;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+}

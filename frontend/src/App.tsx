@@ -1,7 +1,10 @@
-
+import MandiMap from "./MandiMap";
+import FarmerGuide from "./FarmerGuide";
 import { useState } from "react";
 import "./App.css";
 import { translations, type Language } from "./translations";
+
+
 
 type Market = {
   id: string;
@@ -197,6 +200,7 @@ function App() {
           </div>
         </section>
 
+        <FarmerGuide language={language} /><MandiMap />
         <section className="content-grid">
           <aside className="input-card">
             <div className="section-heading">
